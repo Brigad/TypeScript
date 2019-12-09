@@ -4906,6 +4906,10 @@
         "category": "Message",
         "code": 90029
     },
+    "List of platform extensions to fallback on": {
+        "category": "Message",
+        "code": 910044
+    },
     "Replace 'infer {0}' with 'unknown'": {
         "category": "Message",
         "code": 90030

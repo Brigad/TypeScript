@@ -1115,8 +1115,31 @@ namespace ts {
         }
     }
 
-    /** Return the file if it exists. */
-    function tryFile(fileName: string, onlyRecordFailures: boolean, state: ModuleResolutionState): string | undefined {
+/** Return the file if it exists. */
+function tryFile(file: string, onlyRecordFailures: boolean, state: ModuleResolutionState): string | undefined {
+
+    if (state.compilerOptions.resolutionPlatforms){
+        for(let platform of state.compilerOptions.resolutionPlatforms) {
+            let result = tryFileInner(platform);
+            if (result) {
+                return result;
+            }
+        }
+    }
+
+    return tryFileInner(null);
+
+    function tryFileInner(platform: string | null): string | undefined {
+
+        let fileName = file;
+        if (platform) {
+          let lastDot = file.lastIndexOf('.');
+          if (lastDot === -1) {
+              return undefined;
+          }
+          fileName = file.slice(0, lastDot + 1) + platform + file.slice(lastDot);
+        }
+
         if (!onlyRecordFailures) {
             if (state.host.fileExists(fileName)) {
                 if (state.traceEnabled) {
@@ -1133,6 +1156,7 @@ namespace ts {
         state.failedLookupLocations.push(fileName);
         return undefined;
     }
+}
 
     function loadNodeModuleFromDirectory(extensions: Extensions, candidate: string, onlyRecordFailures: boolean, state: ModuleResolutionState, considerPackageJson = true) {
         const packageInfo = considerPackageJson ? getPackageJsonInfo(candidate, onlyRecordFailures, state) : undefined;
